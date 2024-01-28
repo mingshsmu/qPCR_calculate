@@ -61,6 +61,11 @@ color_in <- c("#1F77B4FF", "#FF7F0EFF", "#2CA02CFF", "#D62728FF", "#9467BDFF",
               "#8C564BFF", "#E377C2FF", "#7F7F7FFF", "#BCBD22FF", "#17BECFFF",
               "#AEC7E8FF", "#FFBB78FF", "#98DF8AFF", "#FF9896FF", "#C5B0D5FF",
               "#C49C94FF", "#F7B6D2FF", "#C7C7C7FF", "#DBDB8DFF", "#9EDAE5FF")
+if(is.null(palette)){
+    palette <- color_in
+  }else{
+    palette <- stringr::str_to_title(palette)
+  }
 # scales::show_col(color_in)
 # color_in <- sample(color_in, length(color_in), replace=FALSE)
 qpcr_analysis <- function(data,ref,con,fold=NULL){
@@ -110,12 +115,9 @@ qpcr_summary <- function(result){
   summ <- result %>% distinct(samples, gene,.keep_all = T)
   return(summ)
 }
-qpcr_plot <- function(result, summ, palette=NULL){
-  if(is.null(palette)){
-    palette <- color_in
-  }else{
-    palette <- stringr::str_to_title(palette)
-  }
+
+
+qpcr_plot <- function(result, summ, palette=palette){
   p1 <- ggplot()+
     geom_bar(data=summ,mapping=aes(x=samples,y=exp_mean,fill=samples,color=samples),alpha=0.8,stat = "identity")+
     geom_errorbar(data=summ,mapping=aes(x=samples,ymin=exp_mean-exp_sd,ymax=exp_mean+exp_sd,
@@ -149,8 +151,12 @@ melt_plot <- function(data){
     theme_bw()+
     theme(legend.position = "none",
           panel.grid = element_blank(),
-          strip.background = element_rect(fill = "#eaeae0"))+
-    scale_color_manual(values = color_in)
+          strip.background = element_rect(fill = "#eaeae0"))
+  if(length(palette)==1){
+    p <- p+scale_color_brewer(palette = palette,direction = -1)
+  }else{
+    p <- p+scale_color_manual(values = palette)
+  }
   return(p)
 }
 
@@ -165,8 +171,12 @@ amp_plot <- function(data){
     theme_bw()+
     theme(legend.position = "none",
           panel.grid = element_blank(),
-          strip.background = element_rect(fill = "#eaeae0"))+
-    scale_color_manual(values = color_in)
+          strip.background = element_rect(fill = "#eaeae0"))
+  if(length(palette)==1){
+    p <- p+scale_color_brewer(palette = palette,direction = -1)
+  }else{
+    p <- p+scale_color_manual(values = palette)
+  }
   return(p)
 }
 
